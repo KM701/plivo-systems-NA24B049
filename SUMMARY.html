@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>The Flaky Network - System Architecture Summary</title>
+    <style>
+        body { font-family: sans-serif; line-height: 1.6; max-width: 800px; margin: 2rem auto; }
+        h1, h2, h3 { color: #333; }
+        code { background: #eee; padding: 2px 4px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>Architecture & Design Choices</h1>
+    <h2>The Flaky Network Solution</h2>
+    <p>This implementation combats hostile network conditions (packet drops, jitter, reordering, and duplicates) using a proactive Forward Error Correction (FEC) strategy paired with precise playout synchronization.</p>
+    
+    <h3>1. 1-for-2 XOR FEC (Bandwidth Optimization)</h3>
+    <p>Instead of piggybacking the previous payload on every single packet (which violates the 2.0x bandwidth cap), the sender pairs frames into even/odd sets. For every set, it computes a mathematical XOR parity payload and transmits it as a third packet. This brings the bandwidth overhead down to approximately 1.54x while providing absolute recovery for any single-packet drop within a pair.</p>
+    
+    <h3>2. Absolute Playout Timing (Jitter Buffer)</h3>
+    <p>To eliminate deadline misses caused by network jitter, the receiver uses the harness-provided <code>T0</code> environment variable to flawlessly anchor its internal clock to the judge's epoch. A dedicated C++ playback thread calculates the absolute deadline for each frame and uses <code>std::this_thread::sleep_until</code> to sleep accurately, safely preempting OS scheduler lag.</p>
+    
+    <h3>3. Thread Safety & Socket Reuse</h3>
+    <p>The receiver utilizes a pre-allocated <code>std::vector</code> as a jitter buffer, protected by a <code>std::mutex</code> to safely handle concurrent read/write operations between the network listener and the playback thread. Both endpoints implement <code>SO_REUSEADDR</code> to prevent kernel-level port blocking between rapid test runs.</p>
+</body>
+</html>

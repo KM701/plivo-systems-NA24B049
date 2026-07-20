@@ -1,0 +1,7 @@
+- Profile A, delay 40ms: INVALID (100% miss). Time anchor was off, used relative sleep.
+- Profile A, delay 200ms: VALID (0.20% miss, 1.54x overhead). Added 1-for-2 XOR FEC, T0 sync.
+- Profile B, delay 200ms: VALID.
+- Profile B, delay 100ms: VALID.
+- Profile A, delay 52ms: VALID (0.87% miss). Optimized receiver with absolute sleep_until and maximized SO_RCVBUF.
+- Profile B, delay 98ms: VALID (0.93% miss).
+- Locked in final delay score at 98 ms based on Profile B stress limits.
